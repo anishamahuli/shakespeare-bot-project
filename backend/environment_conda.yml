@@ -1,0 +1,10 @@
+name: torch-nightly
+channels:
+  - conda-forge
+dependencies:
+  - pytorch
+  - torchvision
+  - pip
+  - python=3.12
+  - torchaudio
+prefix: /Users/anishamahuli/miniforge3/envs/torch-nightly

@@ -1,20 +1,19 @@
-FROM conda/miniconda3
+FROM mambaorg/micromamba:1.4.2
 
-# Set working directory
 WORKDIR /app
 
-# Copy env and install
-COPY environment.yml .
-RUN conda env create -f environment.yml
+COPY environment.yml /tmp/environment.yml
 
-# Activate env by default
-SHELL ["conda", "run", "-n", "torch-nightly", "/bin/bash", "-c"]
+# Create the environment using micromamba
+RUN micromamba env create -f /tmp/environment.yml
 
-# Install FastAPI app dependencies
+# Activate the environment in future commands
+SHELL ["micromamba", "run", "-n", "torch-nightly", "/bin/bash", "-c"]
+
+# Copy app code
 COPY app ./app
 
-# Expose FastAPI port
 EXPOSE 8000
 
-# Run FastAPI using uvicorn in the conda env
-CMD ["conda", "run", "--no-capture-output", "-n", "torch-nightly", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Start the FastAPI app
+CMD ["micromamba", "run", "-n", "torch-nightly", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
