@@ -12,4 +12,5 @@ dependencies:
   - pip:
       - fastapi
       - transformers
-      - uvicorn
+      - uvicorn[standard]
+      - protobuf
