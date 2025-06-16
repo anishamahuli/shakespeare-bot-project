@@ -1,17 +1,33 @@
 from fastapi import FastAPI, Request
 from fastapi.responses import RedirectResponse
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from transformers import GPT2Tokenizer, GPT2LMHeadModel
 import torch
 
 app = FastAPI()
 
+# Set up CORS middleware
+# This is necessary to allow frontend to communicate with the backend
+app.add_middleware(
+    CORSMiddleware,
+    # allow_origins=["http://localhost:3000"],
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["POST"],
+    allow_headers=["*"],
+)
+
+@app.get("/ping")
+def ping():
+    return {"message": "pong"}
+
+
 @app.get("/")
 def root():
     return RedirectResponse(url="/docs")
 
-
-# Load your model from Hugging Face
+# Load the model from Hugging Face
 # model_name = "amahuli/shakespeare-llm"
 tokenizer = GPT2Tokenizer.from_pretrained("amahuli/shakespeare-llm")
 model = GPT2LMHeadModel.from_pretrained("amahuli/shakespeare-llm")
@@ -21,9 +37,10 @@ class Prompt(BaseModel):
     text: str
 
 @app.post("/generate")
-def generate_text(prompt: Prompt):
+async def generate_text(prompt: Prompt):
     inputs = tokenizer(prompt.text, return_tensors="pt")
     with torch.no_grad():
         outputs = model.generate(**inputs, max_length=100)
     generated = tokenizer.decode(outputs[0], skip_special_tokens=True)
     return {"response": generated}
+
