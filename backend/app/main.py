@@ -32,6 +32,7 @@ def root():
 tokenizer = GPT2Tokenizer.from_pretrained("amahuli/shakespeare-llm")
 model = GPT2LMHeadModel.from_pretrained("amahuli/shakespeare-llm")
 model.eval()
+model = torch.compile(model)  # Compile the model for better performance
 
 class Prompt(BaseModel):
     text: str
@@ -40,7 +41,14 @@ class Prompt(BaseModel):
 async def generate_text(prompt: Prompt):
     inputs = tokenizer(prompt.text, return_tensors="pt")
     with torch.no_grad():
-        outputs = model.generate(**inputs, max_length=100)
+        outputs = model.generate(
+        **inputs,
+        max_new_tokens=50,
+        use_cache=True,
+        do_sample=True,
+        top_k=50,
+        top_p=0.95
+)
     generated = tokenizer.decode(outputs[0], skip_special_tokens=True)
     return {"response": generated}
 
