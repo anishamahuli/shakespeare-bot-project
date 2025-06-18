@@ -48,12 +48,12 @@ async def generate_text(prompt: Prompt):
 
 
 # app.mount("/", StaticFiles(directory=frontend_path, html=True), name="static")
-frontend_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../frontend/build"))
+frontend_path = os.path.join(os.path.dirname(__file__), "static")
+
 print("🚀 Serving frontend from:", frontend_path)
 assert os.path.isdir(frontend_path), f"❌ Frontend path does not exist: {frontend_path}"
+app.mount("/", StaticFiles(directory=frontend_path, html=True), name="static")
 
-# app.mount("/static", StaticFiles(directory=frontend_path, html=True), name="static")
-app.mount("/static", StaticFiles(directory=os.path.join(frontend_path, "static")), name="static")
 
 
 # Catch-all for serving index.html for React SPA
