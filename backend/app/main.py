@@ -4,6 +4,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from transformers import GPT2Tokenizer, GPT2LMHeadModel
 import torch
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+import os
 
 app = FastAPI()
 
@@ -17,15 +20,6 @@ app.add_middleware(
     allow_methods=["POST"],
     allow_headers=["*"],
 )
-
-@app.get("/ping")
-def ping():
-    return {"message": "pong"}
-
-
-@app.get("/")
-def root():
-    return RedirectResponse(url="/docs")
 
 # Load the model from Hugging Face
 # model_name = "amahuli/shakespeare-llm"
@@ -52,3 +46,17 @@ async def generate_text(prompt: Prompt):
     generated = tokenizer.decode(outputs[0], skip_special_tokens=True)
     return {"response": generated}
 
+
+# app.mount("/", StaticFiles(directory=frontend_path, html=True), name="static")
+frontend_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../frontend/build"))
+print("🚀 Serving frontend from:", frontend_path)
+assert os.path.isdir(frontend_path), f"❌ Frontend path does not exist: {frontend_path}"
+
+# app.mount("/static", StaticFiles(directory=frontend_path, html=True), name="static")
+app.mount("/static", StaticFiles(directory=os.path.join(frontend_path, "static")), name="static")
+
+
+# Catch-all for serving index.html for React SPA
+@app.get("/{full_path:path}")
+async def serve_react_app():
+    return FileResponse(os.path.join(frontend_path, "index.html"))
