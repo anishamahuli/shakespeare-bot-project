@@ -58,6 +58,9 @@ outputs = model.generate(
 3. Run the container using `docker run --name shakespeare -p 8000:8000 shakespeare-api`. This may take a couple minutes.
 4. Once the container is running, visit http://localhost:8000
 
-
+It should look something like this
+<p align="center">
+<img width="551" alt="Screenshot 2025-06-19 at 12 27 41 PM" src="https://github.com/user-attachments/assets/d1053e1b-a6a5-46cb-adc6-3731ec0325ed" />
+</p>
 
 
